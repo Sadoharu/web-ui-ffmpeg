@@ -83,7 +83,7 @@ function startFfmpeg(scriptName) {
             console.log(`Script ${scriptName} stopped with exit code: ${code}. Not restarting.`);
             writeToLog(scriptName, `stopped with exit code: ${code}. Not restarting.`);
             broadcastMessage(`Script ${scriptName} stopped.`);
-        } else if (code === '255') {
+        } else if (code === 255) {
             console.log(`Script ${scriptName} stopped with exit code: ${code}. Not restarting.`);
             writeToLog(scriptName, `stopped with exit code: ${code}. Not restarting.`);
             broadcastMessage(`Script ${scriptName} stopped.`);
