@@ -3,31 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Script Control Panel</title>
+    <title>FFmpeg Script Control</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
 </head>
 <body>
-    <div>
-        <button class="start-btn" data-script-id="script1">Start Script 1</button>
-        <button class="stop-btn" data-script-id="script1">Stop Script 1</button>
-        <span id="status-script1">Status: Unknown</span>
+    <div id="script-controls">
+        <div class="script-group" data-script="script1">
+            <button class="start-btn">Start Encoder SDI 1 Kyiv</button>
+            <button class="stop-btn">Stop Encoder SDI 1 Kyiv</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div>
+        <div class="script-group" data-script="script2">
+            <button class="start-btn">Start Decoder SDI 4 Kyiv</button>
+            <button class="stop-btn">Stop Decoder SDI 4 Kyiv</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div>
+        <!-- <div class="script-group" data-script="script3">
+            <button class="start-btn">Start Script 3</button>
+            <button class="stop-btn">Stop Script 3</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div>
+        <div class="script-group" data-script="script4">
+            <button class="start-btn">Start Script 4</button>
+            <button class="stop-btn">Stop Script 4</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div> -->
     </div>
-    <div>
-        <button class="start-btn" data-script-id="script2">Start Script 2</button>
-        <button class="stop-btn" data-script-id="script2">Stop Script 2</button>
-        <span id="status-script2">Status: Unknown</span>
-    </div>
-    <div>
-        <button class="start-btn" data-script-id="script3">Start Script 3</button>
-        <button class="stop-btn" data-script-id="script3">Stop Script 3</button>
-        <span id="status-script3">Status: Unknown</span>
-    </div>
-    <div>
-        <button class="start-btn" data-script-id="script4">Start Script 4</button>
-        <button class="stop-btn" data-script-id="script4">Stop Script 4</button>
-        <span id="status-script4">Status: Unknown</span>
-    </div>
-    <!-- Додайте подібні кнопки для script3 та script4 -->
 
     <script src="script.js"></script>
 </body>
 </html>
+
+
+

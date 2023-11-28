@@ -1,0 +1,4 @@
+14.11.2023, 11:40:00 [script1] stopped with exit code: null. Not restarting.
+14.11.2023, 11:41:48 [script1] stopped with exit code: null. Not restarting.
+14.11.2023, 11:44:49 [script1] Try to lunch script1. Script is already running
+14.11.2023, 11:46:22 [script1] stopped with exit code: null. Not restarting.

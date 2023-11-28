@@ -1,115 +1,127 @@
 const express = require('express');
 const { spawn } = require('child_process');
 const fs = require('fs');
-const http = require('http');
 const WebSocket = require('ws');
+const http = require('http');
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const port = 3000;
 
-let scriptProcesses = {
-    script1: null,
-    script2: null,
-    script3: null,
-    script4: null
+const processes = {};
+
+
+const scriptConfigurations = {
+    script1: ['-f', 'decklink', '-channels', '8', '-i', '81:16eea9a1:00000000', '-threads', '8',
+    '-map', '0', '-c:v', 'libx264', '-s', '1920x1080', '-b:v', '8M', '-minrate', '8M', '-maxrate', '8M', '-bufsize', '8M', '-rc', 'cbr', '-profile:v',
+    'main', '-pix_fmt', 'yuv420p', '-preset', 'ultrafast', '-tune', 'zerolatency', '-vf', 'yadif', '-c:a', 'aac', '-ac', '8', '-b:a',
+    '1536k', '-r', '25', '-muxrate', '12M', '-pcr_period', '20', '-f', 'mpegts',
+    'srt://10.10.1.175:6000?mode=caller&transtype=live&streamid=42c48bda-626b-4efa-a3e2-6ec261890fbd,mode:publish'],
+    script2: ['-i', 'srt://10.10.150.67:1234',
+    '-f', 'decklink',
+    '-pix_fmt', 'uyvy422',
+    '81:16eea9a0:00000000'],
+    script3: ['-f', 'decklink' /* інші параметри для script3 */],
+    script4: ['-f', 'decklink' /* інші параметри для script4 */]
 };
 
-let scriptStatuses = {
-    script1: { active: false, lastHeartbeat: null },
-    script2: { active: false, lastHeartbeat: null },
-    script3: { active: false, lastHeartbeat: null },
-    script4: { active: false, lastHeartbeat: null }
-};
 
-wss.on('connection', ws => {
-    ws.on('message', message => {
-        console.log('received: %s', message);
-    });
-
-    ws.send(JSON.stringify({ message: 'Connected to WebSocket server' }));
+const scriptLoggers = {};
+Object.keys(scriptConfigurations).forEach(scriptName => {
+    scriptLoggers[scriptName] = fs.createWriteStream(`${scriptName}_log.txt`, { flags: 'a' });
 });
 
-function broadcastScriptStatus() {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(scriptStatuses));
-        }
-    });
+function getTimestamp() {
+    return new Date().toLocaleString();
 }
 
+function writeToLog(scriptName, message) {
+    const timestamp = getTimestamp();
+    const formattedMessage = `${timestamp} [${scriptName}] ${message}\n`;
 
-app.use(express.static('public'));
+    if (scriptLoggers[scriptName]) {
+        scriptLoggers[scriptName].write(formattedMessage);
+    }
+    console.log(formattedMessage);
+}
 
-
-app.post('/start-script/:scriptId', (req, res) => {
-    const scriptId = req.params.scriptId;
-
-
-    if ((scriptProcesses[scriptId])) {
-        return res.status(400).send(`Script ${scriptId} is already running.`);
+function startFfmpeg(scriptName) {
+    if (processes[scriptName]) {
+        console.log(`Script ${scriptName} is already running.`);
+        writeToLog(scriptName, `Try to lunch ${scriptName}. Script is already running`);
+        return;
     }
 
-    const process = spawn('python', [`./scripts/${scriptId}.py`]);
-    scriptProcesses[scriptId] = process.pid;
+    const ffmpegArgs = scriptConfigurations[scriptName];
+    const ffmpeg = spawn('ffmpeg', ffmpegArgs);
+    processes[scriptName] = ffmpeg;
 
-    process.stdout.on('data', (data) => {
+    ffmpeg.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
     });
 
-    res.send(`Script ${scriptId} started successfully.`);
-    broadcastScriptStatus(); 
-});
+    ffmpeg.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+        const line = data.toString();
+        // logger.write(`[${scriptName}] ${line}`);
+        broadcastMessage(`[${scriptName}]: ${line}`);
+        if (line.includes('Decklink input buffer overrun')) {
+            console.log(`Decklink input buffer overrun detected in ${scriptName}. Restarting...`);
+            writeToLog(scriptName, 'Decklink input buffer overrun detected. Restarting');
+            broadcastMessage(`Decklink input buffer overrun detected in ${scriptName}. Restarting...`);
+            ffmpeg.kill(); // Зупинка поточного процесу
 
-app.post('/stop-script/:scriptId', (req, res) => {
-    const scriptId = req.params.scriptId;
-    const pid = scriptProcesses[scriptId];
-
-    if (pid) {
-        try {
-            process.kill(pid, 'SIGTERM');  // Відправлення сигналу SIGTERM
-            scriptProcesses[scriptId] = null;
-            res.send(`Script ${scriptId} stopped successfully.`);
-        } catch (error) {
-            console.error(`Error: ${error}`);
-            res.status(500).send(`Error stopping script ${scriptId}`);
+            // Перезапуск скрипта
+            setTimeout(() => {
+                startFfmpeg(scriptName);
+            }, 5000); // Затримка перед перезапуском, щоб уникнути постійних перезапусків
         }
-    } else {
-        res.status(400).send(`No script ${scriptId} is running.`);
-    }
-    broadcastScriptStatus(); 
-});
+    });
 
-function checkHeartbeat(scriptId) {
-    const heartbeatFile = `heartbeat_${scriptId}.txt`;
-    fs.readFile(heartbeatFile, 'utf8', (err, data) => {
-        if (err) {
-            scriptStatuses[scriptId].active = false;
-            console.error(`Не вдалося прочитати файл heartbeat для ${scriptId}`);
-            // Тут можна додати логіку для спроби перезапуску або сповіщення
-            return;
-        }
-
-        const lastHeartbeat = parseFloat(data.split(':')[1]);
-        const currentTime = Date.now() / 1000;  // Перетворюємо в секунди
-
-        if (currentTime - lastHeartbeat > 5) {  // Перевірка на перевищення 10 секунд
-            console.error(`${scriptId} may have stopped running.`);
-            scriptStatuses[scriptId].active = false;
+    ffmpeg.on('close', (code) => {
+        if (code === null) {
+            console.log(`Script ${scriptName} stopped with exit code: ${code}. Not restarting.`);
+            writeToLog(scriptName, `stopped with exit code: ${code}. Not restarting.`);
+            broadcastMessage(`Script ${scriptName} stopped.`);
         } else {
-            scriptStatuses[scriptId].active = true;
+            console.log(`Script ${scriptName} crashed with exit code: ${code}. Restarting...`);
+            writeToLog(scriptName, `Script ${scriptName} crashed with exit code: ${code}. Restarting...`);
+            broadcastMessage(`Script ${scriptName} crashed with exit code: ${code}. Restarting...`);
+            setTimeout(() => {
+                console.log(`Restarting script ${scriptName}...`);
+                writeToLog(scriptName, 'Restarting script');
+                startFfmpeg(scriptName); // Перезапуск скрипта
+            }, 5000); // Затримка 5 секунд
+        }
+        delete processes[scriptName];
+    });
+}
+
+wss.on('connection', ws => {
+    ws.on('message', message => {
+        const { command, scriptName } = JSON.parse(message);
+
+        if (command === 'start' && scriptConfigurations[scriptName]) {
+            startFfmpeg(scriptName);
+        } else if (command === 'stop' && processes[scriptName]) {
+            processes[scriptName].kill();
+            ws.send(`Stopping script ${scriptName}...`);
+        } else {
+            ws.send(`Invalid command or script name: ${scriptName}`);
+        }
+    });
+});
+
+function broadcastMessage(message) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
         }
     });
 }
 
-// Регулярне оновлення статусів скриптів
-setInterval(() => {
-    Object.keys(scriptProcesses).forEach(checkHeartbeat);
-    broadcastScriptStatus(); 
-}, 1000); // Оновлення кожні 5 секунд
+app.use(express.static('public'));
 
-
-server.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+server.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });

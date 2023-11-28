@@ -1,0 +1,74 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#script-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60%;
+    margin: auto;
+    padding: 20px;
+}
+
+.script-group {
+    margin-bottom: 20px;
+}
+
+.start-btn, .stop-btn {
+    margin-right: 10px;
+}
+
+
+
+button {
+    width: fit-content;
+    min-width: 100px;
+    height: 45px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 2.5px solid #E0E1E4;
+    box-shadow: 0px 0px 20px -20px;
+    cursor: pointer;
+    background-color: white;
+    transition: all 0.2s ease-in-out 0ms;
+    user-select: none;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  button:hover {
+    background-color: #F2F2F2;
+    box-shadow: 0px 0px 20px -18px;
+  }
+  
+  button:active {
+    transform: scale(0.95);
+  }
+
+  textarea {
+    width: 500px;
+    height: 100px;
+  }
+
+
+  .script-group {
+    display: grid;
+    grid-template-columns: auto 1fr; /* Перша колонка для кнопок, друга для текстового поля */
+    grid-template-rows: auto auto; /* Дві рядки, один для кожної кнопки */
+}
+
+.start-btn {
+    grid-row: 1; /* Перша кнопка у першому рядку */
+    grid-column: 1; /* Обидві кнопки у першій колонці */
+}
+
+.stop-btn {
+    grid-row: 2; /* Друга кнопка у другому рядку */
+    grid-column: 1;
+}
+
+.status {
+    grid-row: 1 / 3; /* Текстове поле займає обидва рядки */
+    grid-column: 2; /* Текстове поле у другій колонці */
+    resize: none;
+}
