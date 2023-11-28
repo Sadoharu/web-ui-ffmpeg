@@ -1,4 +1,4 @@
-const socket = new WebSocket('ws://10.10.1.175:8079');
+const socket = new WebSocket('ws://10.2.0.38:8079');
 
 socket.onmessage = function(event) {
     const data = event.data;
