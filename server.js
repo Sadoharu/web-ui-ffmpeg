@@ -12,11 +12,11 @@ const processes = {};
 
 
 const scriptConfigurations = {
-    script1: ['-f', 'decklink', '-channels', '8', '-i', '81:16eea9a1:00000000', '-threads', '8',
+    script1: ['-f', 'decklink', '-channels', '8', '-i', '81:5945bb70:00000000', '-threads', '8',
     '-map', '0', '-c:v', 'libx264', '-s', '1920x1080', '-b:v', '8M', '-minrate', '8M', '-maxrate', '8M', '-bufsize', '8M', '-rc', 'cbr', '-profile:v',
     'main', '-pix_fmt', 'yuv420p', '-preset', 'ultrafast', '-tune', 'zerolatency', '-vf', 'yadif', '-c:a', 'aac', '-ac', '8', '-b:a',
     '1536k', '-r', '25', '-muxrate', '12M', '-pcr_period', '20', '-f', 'mpegts',
-    'srt://10.10.1.175:6000?mode=caller&transtype=live&streamid=42c48bda-626b-4efa-a3e2-6ec261890fbd,mode:publish'],
+    'srt://10.2.0.38:6000?mode=caller&latency=200&transtype=live&streamid=08d07f90-71be-487e-a623-e4765929c87f,mode:publish'],
     script2: ['-i', 'srt://10.10.150.67:1234',
     '-f', 'decklink',
     '-pix_fmt', 'uyvy422',
