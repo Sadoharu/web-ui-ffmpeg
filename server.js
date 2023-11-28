@@ -122,6 +122,6 @@ function broadcastMessage(message) {
 
 app.use(express.static('public'));
 
-server.listen(3000, () => {
+server.listen(8079, () => {
     console.log('Server is running on port 3000');
 });
