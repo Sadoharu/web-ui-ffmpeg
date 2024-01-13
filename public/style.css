@@ -4,15 +4,16 @@ body {
 
 #script-controls {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    width: 60%;
+    width: 80%;
     margin: auto;
     padding: 20px;
+    justify-content: space-between;
 }
 
 .script-group {
-    margin-bottom: 20px;
+    margin-bottom: 70px;
 }
 
 .start-btn, .stop-btn {
@@ -54,8 +55,14 @@ button {
   .script-group {
     display: grid;
     grid-template-columns: auto 1fr; /* Перша колонка для кнопок, друга для текстового поля */
-    grid-template-rows: auto auto; /* Дві рядки, один для кожної кнопки */
+    grid-template-rows: auto auto auto; /* Дві рядки, один для кожної кнопки */
+    row-gap: 15px;
 }
+
+  .script-group input {
+    grid-row: 3;
+    grid-column: span 2;
+  }
 
 .start-btn {
     grid-row: 1; /* Перша кнопка у першому рядку */

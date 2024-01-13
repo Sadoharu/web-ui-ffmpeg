@@ -10,24 +10,20 @@ const wss = new WebSocket.Server({ server });
 
 const processes = {};
 
-
-const scriptConfigurations = {
-    script1: ['-f', 'decklink', '-channels', '8', '-i', '81:5945bb70:00000000', '-threads', '8',
-    '-map', '0', '-c:v', 'libx264', '-s', '1920x1080', '-b:v', '8M', '-minrate', '8M', '-maxrate', '8M', '-bufsize', '8M', '-rc', 'cbr', '-profile:v',
-    'main', '-pix_fmt', 'yuv420p', '-preset', 'ultrafast', '-tune', 'zerolatency', '-vf', 'yadif', '-c:a', 'aac', '-ac', '8', '-b:a',
-    '1536k', '-r', '25', '-muxrate', '12M', '-pcr_period', '20', '-f', 'mpegts',
-    'srt://10.2.0.38:6000?mode=caller&latency=200&transtype=live&streamid=08d07f90-71be-487e-a623-e4765929c87f,mode:publish'],
-    script2: ['-i', 'srt://10.10.150.67:1234',
-    '-f', 'decklink',
-    '-pix_fmt', 'uyvy422',
-    '81:16eea9a0:00000000'],
-    script3: ['-f', 'decklink' /* інші параметри для script3 */],
-    script4: ['-f', 'decklink' /* інші параметри для script4 */]
+const scriptUrls = {
+    script1: '',
+    script2: '',
+    script3: '',
+    script4: '',
+    script5: '',
+    script6: '',
+    script7: '',
+    script8: ''
 };
 
-
 const scriptLoggers = {};
-Object.keys(scriptConfigurations).forEach(scriptName => {
+const scriptNames = ['script1', 'script2', 'script3', 'script4', 'script5', 'script6', 'script7', 'script8'];
+scriptNames.forEach(scriptName => {
     scriptLoggers[scriptName] = fs.createWriteStream(`${scriptName}_log.txt`, { flags: 'a' });
 });
 
@@ -42,18 +38,15 @@ function writeToLog(scriptName, message) {
     if (scriptLoggers[scriptName]) {
         scriptLoggers[scriptName].write(formattedMessage);
     }
-    console.log(formattedMessage);
 }
 
-function startFfmpeg(scriptName) {
+function startFfmpeg(scriptName, parameters) {
     if (processes[scriptName]) {
-        console.log(`Script ${scriptName} is already running.`);
         writeToLog(scriptName, `Try to lunch ${scriptName}. Script is already running`);
         return;
     }
 
-    const ffmpegArgs = scriptConfigurations[scriptName];
-    const ffmpeg = spawn('ffmpeg', ffmpegArgs);
+    const ffmpeg = spawn('ffmpeg', parameters);
     processes[scriptName] = ffmpeg;
 
     ffmpeg.stdout.on('data', (data) => {
@@ -61,7 +54,6 @@ function startFfmpeg(scriptName) {
     });
 
     ffmpeg.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
         const line = data.toString();
         // logger.write(`[${scriptName}] ${line}`);
         broadcastMessage(`[${scriptName}]: ${line}`);
@@ -102,13 +94,16 @@ function startFfmpeg(scriptName) {
 }
 
 wss.on('connection', ws => {
+    ws.send(JSON.stringify({ command: 'init', scriptUrls }));
     ws.on('message', message => {
-        const { command, scriptName } = JSON.parse(message);
+        const { command, scriptName, parameters, url } = JSON.parse(message);
 
-        if (command === 'start' && scriptConfigurations[scriptName]) {
-            startFfmpeg(scriptName);
+        if (command === 'start') {
+            scriptUrls[scriptName] = url; // Зберігає новий URL
+            startFfmpeg(scriptName, parameters);
         } else if (command === 'stop' && processes[scriptName]) {
             processes[scriptName].kill();
+
             ws.send(`Stopping script ${scriptName}...`);
         } else {
             ws.send(`Invalid command or script name: ${scriptName}`);

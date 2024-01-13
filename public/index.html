@@ -1,3 +1,4 @@
+<!--public/index.html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,28 +12,61 @@
 </head>
 <body>
     <div id="script-controls">
+        <div>
+        <h2>Енкодер</h2>
         <div class="script-group" data-script="script1">
-            <button class="start-btn">Start Encoder SDI 1 Kyiv</button>
-            <button class="stop-btn">Stop Encoder SDI 1 Kyiv</button>
+            <input type="text" id="url-script1" placeholder="Enter URL for Encode 1">
+            <button class="start-btn" id="start-script1">Start SDI 1</button>
+            <button class="stop-btn" id="stop-script1">Stop SDI 1</button>
             <textarea class="status" readonly>Status: Idle</textarea>
         </div>
-        <!-- <div class="script-group" data-script="script2">
-            <button class="start-btn">Start Decoder SDI 4 Kyiv</button>
-            <button class="stop-btn">Stop Decoder SDI 4 Kyiv</button>
+        <div class="script-group" data-script="script2">
+            <input type="text" id="url-script2" placeholder="Enter URL for Encode 2">
+            <button class="start-btn" id="start-script2">Start SDI 2</button>
+            <button class="stop-btn" id="stop-script2">Stop SDI 2</button>
             <textarea class="status" readonly>Status: Idle</textarea>
-        </div> -->
-        <!-- <div class="script-group" data-script="script3">
-            <button class="start-btn">Start Script 3</button>
-            <button class="stop-btn">Stop Script 3</button>
+        </div>
+        <div class="script-group" data-script="script3">
+            <input type="text" id="url-script3" placeholder="Enter URL for Encode 3">
+            <button class="start-btn" id="start-script3">Start SDI 3</button>
+            <button class="stop-btn" id="stop-script3">Stop SDI 3</button>
             <textarea class="status" readonly>Status: Idle</textarea>
         </div>
         <div class="script-group" data-script="script4">
-            <button class="start-btn">Start Script 4</button>
-            <button class="stop-btn">Stop Script 4</button>
+            <input type="text" id="url-script4" placeholder="Enter URL for Encode 4">
+            <button class="start-btn" id="start-script4">Start SDI 4</button>
+            <button class="stop-btn" id="stop-script4">Stop SDI 4</button>
             <textarea class="status" readonly>Status: Idle</textarea>
-        </div> -->
+        </div>
     </div>
-
+    <div>
+        <h2>Декодер</h2>
+        <div class="script-group" data-script="script5">
+            <input type="text" id="url-script5" placeholder="Enter URL for Decode 1">
+            <button class="start-btn" id="start-script5">Start SDI 1</button>
+            <button class="stop-btn" id="stop-script5">Stop SDI 1</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div>
+        <div class="script-group" data-script="script6">
+            <input type="text" id="url-script6" placeholder="Enter URL for Decode 2">
+            <button class="start-btn" id="start-script6">Start SDI 2</button>
+            <button class="stop-btn" id="stop-script6">Stop SDI 2</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div>
+        <div class="script-group" data-script="script7">
+            <input type="text" id="url-script7" placeholder="Enter URL for Decode 3">
+            <button class="start-btn" id="start-script7">Start SDI 3</button>
+            <button class="stop-btn" id="stop-script7">Stop SDI 3</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div>
+        <div class="script-group" data-script="script8">
+            <input type="text" id="url-script8" placeholder="Enter URL for Decode 4">
+            <button class="start-btn" id="start-script8">Start SDI 4</button>
+            <button class="stop-btn" id="stop-script8">Stop SDI 4</button>
+            <textarea class="status" readonly>Status: Idle</textarea>
+        </div>
+    </div>
+</div>
     <script src="script.js"></script>
 </body>
 </html>
