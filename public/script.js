@@ -2,14 +2,14 @@
 const socket = new WebSocket('ws://localhost:8079');
 
 const scriptParameters = {
-    script1: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER'],
-    script2: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER'],
-    script3: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER'],
-    script4: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER'],
-    script5: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER'],
-    script6: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER'],
-    script7: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER'],
-    script8: ['-i', 'srt://185.235.218.141:6000/?mode=caller&transtype=live&streamid=3c4024f3-b68b-4e12-8be7-bada96dc193f,mode:request', '-c', 'copy', '-f', 'mpegts', 'URL_PLACEHOLDER']
+    script1: ['-f', 'decklink', '-channels', '2', '-i', '81:2545bb71:00000000', '-map', '0', '-c:v', 'h264_nvenc', '-s', '1920x1080', '-b:v', '8M', '-minrate', '8M', '-maxrate', '8M', '-bufsize', '8M', '-rc', 'cbr', '-profile:v', 'main', '-pix_fmt', 'yuv420p', '-preset', 'p1', '-vf', 'yadif', '-c:a', 'aac', '-ac', '2', '-b:a', '256k', '-ar', '44100', '-r', '25', '-muxrate', '9M', '-pcr_period', '20', '-f', 'mpegts', 'URL_PLACEHOLDER'],
+    script2: ['-f', 'decklink', '-channels', '2', '-i', '81:2545bb71:00000000', '-map', '0', '-c:v', 'h264_nvenc', '-s', '1920x1080', '-b:v', '8M', '-minrate', '8M', '-maxrate', '8M', '-bufsize', '8M', '-rc', 'cbr', '-profile:v', 'main', '-pix_fmt', 'yuv420p', '-preset', 'p1', '-vf', 'yadif', '-c:a', 'aac', '-ac', '2', '-b:a', '256k', '-ar', '44100', '-r', '25', '-muxrate', '9M', '-pcr_period', '20', '-f', 'mpegts', 'URL_PLACEHOLDER'],
+    script3: ['-f', 'decklink', '-channels', '2', '-i', '81:2545bb71:00000000', '-map', '0', '-c:v', 'h264_nvenc', '-s', '1920x1080', '-b:v', '8M', '-minrate', '8M', '-maxrate', '8M', '-bufsize', '8M', '-rc', 'cbr', '-profile:v', 'main', '-pix_fmt', 'yuv420p', '-preset', 'p1', '-vf', 'yadif', '-c:a', 'aac', '-ac', '2', '-b:a', '256k', '-ar', '44100', '-r', '25', '-muxrate', '9M', '-pcr_period', '20', '-f', 'mpegts', 'URL_PLACEHOLDER'],
+    script4: ['-f', 'decklink', '-channels', '2', '-i', '81:2545bb71:00000000', '-map', '0', '-c:v', 'h264_nvenc', '-s', '1920x1080', '-b:v', '8M', '-minrate', '8M', '-maxrate', '8M', '-bufsize', '8M', '-rc', 'cbr', '-profile:v', 'main', '-pix_fmt', 'yuv420p', '-preset', 'p1', '-vf', 'yadif', '-c:a', 'aac', '-ac', '2', '-b:a', '256k', '-ar', '44100', '-r', '25', '-muxrate', '9M', '-pcr_period', '20', '-f', 'mpegts', 'URL_PLACEHOLDER'],
+    script5: [],
+    script6: [],
+    script7: ['-i', 'URL_PLACEHOLDER', '-f', 'decklink', '-pix_fmt', 'uyvy422', '81:2545bb72:00000000'],
+    script8: ['-i', 'URL_PLACEHOLDER', '-f', 'decklink', '-pix_fmt', 'uyvy422', '81:2545bb73:00000000']
 };
 
 socket.onmessage = function(event) {

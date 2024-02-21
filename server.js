@@ -1,3 +1,4 @@
+//server.js
 const express = require('express');
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -21,6 +22,17 @@ const scriptUrls = {
     script8: ''
 };
 
+const restartAllowed = {
+    script1: true,
+    script2: true,
+    script3: true,
+    script4: true,
+    script5: true,
+    script6: true,
+    script7: true,
+    script8: true
+};
+
 const scriptLoggers = {};
 const scriptNames = ['script1', 'script2', 'script3', 'script4', 'script5', 'script6', 'script7', 'script8'];
 scriptNames.forEach(scriptName => {
@@ -39,6 +51,7 @@ function writeToLog(scriptName, message) {
         scriptLoggers[scriptName].write(formattedMessage);
     }
 }
+
 
 function startFfmpeg(scriptName, parameters) {
     if (processes[scriptName]) {
@@ -71,23 +84,27 @@ function startFfmpeg(scriptName, parameters) {
     });
 
     ffmpeg.on('close', (code) => {
-        if (code === null) {
-            console.log(`Script ${scriptName} stopped with exit code: ${code}. Not restarting.`);
-            writeToLog(scriptName, `stopped with exit code: ${code}. Not restarting.`);
-            broadcastMessage(`Script ${scriptName} stopped.`);
-        } else if (code === 255) {
+        if (code === null || code === 255) {
             console.log(`Script ${scriptName} stopped with exit code: ${code}. Not restarting.`);
             writeToLog(scriptName, `stopped with exit code: ${code}. Not restarting.`);
             broadcastMessage(`Script ${scriptName} stopped.`);
         } else {
-            console.log(`Script ${scriptName} crashed with exit code: ${code}. Restarting...`);
-            writeToLog(scriptName, `Script ${scriptName} crashed with exit code: ${code}. Restarting...`);
-            broadcastMessage(`Script ${scriptName} crashed with exit code: ${code}. Restarting...`);
-            setTimeout(() => {
-                console.log(`Restarting script ${scriptName}...`);
-                writeToLog(scriptName, 'Restarting script');
-                startFfmpeg(scriptName); // Перезапуск скрипта
-            }, 5000); // Затримка 5 секунд
+            console.log(`Script ${scriptName} crashed with exit code: ${code}. Checking for restart...`);
+            writeToLog(scriptName, `crashed with exit code: ${code}. Checking for restart...`);
+            broadcastMessage(`Script ${scriptName} crashed with exit code: ${code}. Checking for restart...`);
+    
+            if (restartAllowed[scriptName]) {
+                setTimeout(() => {
+                    console.log(`Restarting script ${scriptName}...`);
+                    writeToLog(scriptName, 'Restarting script');
+                    startFfmpeg(scriptName, parameters); // Передайте параметри для перезапуску
+                }, 5000); // Затримка 5 секунд
+            } else {
+                console.log(`Restart of script ${scriptName} is not allowed.`);
+                writeToLog(scriptName, 'Restart not allowed.');
+                broadcastMessage(`Restart of script ${scriptName} is not allowed.`);
+
+            }
         }
         delete processes[scriptName];
     });
@@ -100,13 +117,16 @@ wss.on('connection', ws => {
 
         if (command === 'start') {
             scriptUrls[scriptName] = url; // Зберігає новий URL
+            restartAllowed[scriptName] = true; // Дозволяємо перезапуск скрипта
             startFfmpeg(scriptName, parameters);
         } else if (command === 'stop' && processes[scriptName]) {
             processes[scriptName].kill();
+            restartAllowed[scriptName] = false; // Запобігання перезапуску
 
             ws.send(`Stopping script ${scriptName}...`);
         } else {
-            ws.send(`Invalid command or script name: ${scriptName}`);
+            ws.send(`Send comand to stop restarting ${scriptName}`);
+            restartAllowed[scriptName] = false; // Запобігання перезапуску
         }
     });
 });
